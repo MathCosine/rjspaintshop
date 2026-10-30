@@ -2,8 +2,9 @@
 //
 // Drop an original into assets/img/src/ named after its slot (hero.png,
 // service-paint.jpg, ...; any of jpg/jpeg/png/webp, any capitalisation), then
-// run `npm run images`. Each image is cropped to its slot's shape and written
-// to assets/img/ as <slot>-<width>.avif / .webp, which index.html references.
+// run `npm run images`. Images are written to assets/img/ as
+// <slot>-<width>.avif / .webp, which index.html references. Slots with a fixed
+// shape are cropped to it; product shots keep their shape (and transparency).
 // Slots without a source keep whatever is already in assets/img/.
 import { existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { extname, join } from 'node:path';
@@ -12,21 +13,19 @@ import sharp from 'sharp';
 const SRC = 'assets/img/src';
 const OUT = 'assets/img';
 
-// [aspect ratio (w/h), output widths]. Keep widths in sync with index.html.
+// [aspect ratio (w/h) or null to keep the original shape, output widths].
+// Keep widths in sync with index.html.
 export const SLOTS = {
-  'hero': [3 / 2, [960, 1440, 1920, 2560]],
-  'hero-mobile': [4 / 5, [640, 960, 1280]],
-  'service-collision': [4 / 5, [640, 960, 1280]],
-  'service-paint': [4 / 5, [640, 960, 1280]],
+  'hero': [null, [960, 1440, 1920, 2560]],
   'service-tesla': [4 / 5, [640, 960, 1280]],
-  'service-dent': [4 / 5, [640, 960, 1280]],
-  'about': [4 / 5, [640, 960, 1280]],
-  'texture': [16 / 9, [1280, 1920, 2560]],
-  'cta': [16 / 9, [1280, 1920, 2560]],
+  'service-collision': [null, [640, 960, 1280]],
+  'service-paint': [null, [640, 960, 1280]],
+  'service-dent': [null, [640, 960, 1280]],
+  'about': [null, [640, 960, 1280]],
 };
 
-// If there's no phone-shaped hero, cut one from the main hero.
-const FALLBACKS = { 'hero-mobile': 'hero' };
+// The Tesla service tile is a close crop of the hero car.
+const FALLBACKS = { 'service-tesla': 'hero' };
 
 const EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 
@@ -52,13 +51,12 @@ for (const [slot, [ratio, widths]] of Object.entries(SLOTS)) {
   const srcW = meta.autoOrient?.width ?? meta.width;
   const srcH = meta.autoOrient?.height ?? meta.height;
   // largest crop of the right shape, centred on the most interesting area
-  const cropW = Math.min(srcW, Math.round(srcH * ratio));
+  const cropW = ratio ? Math.min(srcW, Math.round(srcH * ratio)) : srcW;
   for (const w of widths) {
     const width = Math.min(w, cropW);
-    const height = Math.round(width / ratio);
-    const base = sharp(input)
-      .rotate()
-      .resize({ width, height, fit: 'cover', position: note ? 'attention' : 'centre' });
+    const base = ratio
+      ? sharp(input).rotate().resize({ width, height: Math.round(width / ratio), fit: 'cover', position: note ? 'attention' : 'centre' })
+      : sharp(input).rotate().resize({ width, withoutEnlargement: true });
     await base.clone().avif({ quality: 55, effort: 6 }).toFile(join(OUT, `${slot}-${w}.avif`));
     await base.clone().webp({ quality: 78, effort: 6 }).toFile(join(OUT, `${slot}-${w}.webp`));
   }
