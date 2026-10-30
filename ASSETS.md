@@ -1,6 +1,8 @@
 # Image brief
 
-The site currently shows dark placeholders marked **IMAGE PENDING**. Each one maps to a file below. Generate the images, then drop them into `assets/img/src/` with the exact file name (or send them over), and run `npm run images`.
+The 3D car section, gauges, badges and "How it works" route are all drawn in code, so they need no images.
+
+The rest of the site currently shows dark placeholders marked **IMAGE PENDING**. Each one maps to a file below. Generate the images, then drop them into `assets/img/src/` with the exact file name (or send them over), and run `npm run images`.
 
 ## The goal: real photo shoot, not CGI
 

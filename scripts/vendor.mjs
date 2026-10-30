@@ -7,6 +7,8 @@ const copies = [
   ['node_modules/gsap/dist/gsap.min.js', 'assets/vendor/gsap.min.js'],
   ['node_modules/gsap/dist/ScrollTrigger.min.js', 'assets/vendor/ScrollTrigger.min.js'],
   ['node_modules/gsap/dist/SplitText.min.js', 'assets/vendor/SplitText.min.js'],
+  ['node_modules/gsap/dist/DrawSVGPlugin.min.js', 'assets/vendor/DrawSVGPlugin.min.js'],
+  ['node_modules/gsap/dist/MotionPathPlugin.min.js', 'assets/vendor/MotionPathPlugin.min.js'],
   ['node_modules/lenis/dist/lenis.min.js', 'assets/vendor/lenis.min.js'],
   ['node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2', 'assets/fonts/archivo-latin-wdth.woff2'],
   ['node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2', 'assets/fonts/ibm-plex-mono-400.woff2'],

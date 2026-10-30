@@ -5,7 +5,7 @@
 // Environment Variables:
 //
 //   RESEND_API_KEY       required  API key from resend.com
-//   ESTIMATE_TO_EMAIL    optional  where requests go (default: info@rjspaintshop.com)
+//   ESTIMATE_TO_EMAIL    optional  where requests go (default: rj@rjspaintshop.com)
 //   ESTIMATE_FROM_EMAIL  optional  verified sender, e.g. "RJ's Paint Shop <estimates@rjspaintshop.com>"
 //                                  (default: Resend's shared test sender, which can only
 //                                  deliver to the email address on your Resend account)
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     return res.status(503).json({ error: 'not_configured' });
   }
 
-  const to = process.env.ESTIMATE_TO_EMAIL || 'info@rjspaintshop.com';
+  const to = process.env.ESTIMATE_TO_EMAIL || 'rj@rjspaintshop.com';
   const from = process.env.ESTIMATE_FROM_EMAIL || "RJ's Paint Shop Website <onboarding@resend.dev>";
 
   const rows = [
