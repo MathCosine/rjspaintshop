@@ -3,7 +3,6 @@
   'use strict';
 
   var root = document.documentElement;
-  var scriptSrc = (document.currentScript && document.currentScript.src) || '';
   var $ = function (sel, ctx) { return (ctx || document).querySelector(sel); };
   var $$ = function (sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); };
 
@@ -43,7 +42,7 @@
       initHeroIntro();
       initHeroScroll();
       initServices();
-      initExplode();
+      initLayers();
       initTicker();
       initReveals();
       initSplitHeadings();
@@ -66,7 +65,6 @@
       initServicesStatic();
     }
     if (isHome) {
-      loadCar();
       initGauges();
       $$('.step').forEach(function (el) { el.classList.add('is-lit'); });
     }
@@ -468,7 +466,7 @@
     var mm = gsap.matchMedia();
     mm.add('(min-width: 1024px)', function () {
       var grid = $('[data-reviews]');
-      var travel = [40, 110, 70];
+      var travel = [30, 70, 45];
       $$('[data-review-col]', grid).forEach(function (col, i) {
         gsap.fromTo(col, { y: travel[i] }, {
           y: -travel[i],
@@ -527,118 +525,77 @@
     }
   }
 
-  /* ---------- 3D car: loaded on approach, driven by scroll ---------- */
-  var car3d = null;
-  var carState = { yaw: -0.5, pitch: 0.1, dist: 8.4, explode: 0, lookY: 0.62, lights: 1, focus: null, tiltX: 0, tiltY: 0 };
-  function pushCar(next) {
-    if (next) Object.assign(carState, next);
-    if (car3d) car3d.set(carState);
-  }
-
-  function loadCar(onReady) {
-    var section = $('.explode');
-    if (!section) return;
-    var stage = $('[data-stage]', section);
-    var canvas = $('[data-car3d]', section);
-    var labelsEl = $('[data-labels]', section);
-    var loading = $('[data-car-loading]', section);
-    var labels = $$('[data-part-item]', section).map(function (li) {
-      var el = document.createElement('div');
-      el.className = 'car-label';
-      el.setAttribute('data-label', li.getAttribute('data-part-item'));
-      el.innerHTML = '<span>' + $('.parts__num', li).textContent + '</span>' + $('.parts__name', li).innerHTML;
-      labelsEl.appendChild(el);
-      return el;
-    });
-    var fail = function () {
-      section.classList.add('no-3d');
-      stage.classList.add('no-3d');
-      loading.lastChild.textContent = '3D view isn’t available on this device';
-    };
-    var started = false;
-    var start = function () {
-      if (started) return;
-      started = true;
-      var url = scriptSrc ? new URL('car3d.js', scriptSrc).href : 'assets/js/car3d.js';
-      import(url).then(function (mod) {
-        var pressed = $('.swatch[aria-pressed="true"]', section);
-        car3d = mod.mountCar(canvas, { labels: labels, paint: pressed ? pressed.getAttribute('data-paint') : undefined });
-        if (!car3d) { fail(); return; }
-        pushCar();
-        stage.classList.add('is-ready');
-        if (onReady) onReady(car3d);
-      }).catch(fail);
-    };
-    if ('IntersectionObserver' in window) {
-      var io = new IntersectionObserver(function (entries) {
-        if (entries.some(function (e) { return e.isIntersecting; })) { io.disconnect(); start(); }
-      }, { rootMargin: '150% 0px' });
-      io.observe(section);
-    } else {
-      start();
-    }
-  }
-
+  /* ---------- Paint layers: apart, then rebuilt one coat at a time ---------- */
   function initSwatches() {
     var section = $('.explode');
     if (!section) return;
+    var stage = $('[data-stage]', section);
     var swatches = $$('.swatch', section);
     var nameEl = $('[data-paint-name]', section);
+    var apply = function (sw) {
+      ['--c1', '--c2', '--c3'].forEach(function (v) { stage.style.setProperty(v, sw.style.getPropertyValue(v)); });
+    };
     swatches.forEach(function (sw) {
       sw.addEventListener('click', function () {
         swatches.forEach(function (o) { o.setAttribute('aria-pressed', o === sw ? 'true' : 'false'); });
         nameEl.textContent = sw.getAttribute('data-name');
-        if (car3d) car3d.setPaint(sw.getAttribute('data-paint'));
+        apply(sw);
       });
     });
+    var pressed = $('.swatch[aria-pressed="true"]', section);
+    if (pressed) apply(pressed);
   }
 
-  function initExplode() {
+  function initLayers() {
     var section = $('.explode');
     var pinEl = $('[data-explode]');
     if (!pinEl) return;
-    var stage = $('[data-stage]', section);
+    var stack = $('[data-stack]', section);
+    var slabs = $$('.slab', section);
     var items = $$('[data-part-item]', section);
     var numEl = $('[data-readout-num]', section);
     var nameEl = $('[data-readout-name]', section);
     var detailEl = $('[data-readout-detail]', section);
     var bar = $('[data-explode-bar]', section);
-    var pct = $('[data-explode-pct]', section);
-    var parts = items.map(function (li) {
+    var filmEl = $('[data-film]', section);
+    // resting and exploded heights, as fractions of the panel width (match the CSS)
+    var ZA = { metal: 0, ecoat: 0.065, primer: 0.089, base: 0.123, clear: 0.147 };
+    var ZX = { metal: 0, ecoat: 0.215, primer: 0.389, base: 0.573, clear: 0.747 };
+    var w = function () { return stack.offsetWidth; };
+    var layers = slabs.map(function (el, i) {
+      var li = items[i];
       return {
-        id: li.getAttribute('data-part-item'),
+        el: el,
+        id: el.getAttribute('data-layer'),
         name: $('.parts__name', li).textContent,
-        detail: $('.parts__detail', li).textContent
+        detail: $('.parts__detail', li).textContent,
+        um: parseInt(li.getAttribute('data-um'), 10) || 0
       };
     });
-    var total = String(parts.length).padStart(2, '0');
-    var proxy = { yaw: -2.3, pitch: 0.2, dist: 13, explode: 0, lookY: 0.62, lights: 0.12, focus: null };
-    var push = function () { pushCar(proxy); };
+    var total = String(layers.length).padStart(2, '0');
 
-    loadCar(push);
+    // 1. As the section arrives, the coats lift off the panel.
+    var enter = gsap.timeline({
+      scrollTrigger: { trigger: section, start: 'top 85%', end: 'top 10%', scrub: 0.6, invalidateOnRefresh: true }
+    });
+    layers.forEach(function (L, i) {
+      gsap.set(L.el, { z: function () { return w() * ZA[L.id]; } });
+      if (!i) return;
+      enter.fromTo(L.el,
+        { z: function () { return w() * ZA[L.id]; } },
+        { z: function () { return w() * ZX[L.id]; }, ease: 'power2.out', duration: 1 }, i * 0.06);
+    });
 
-    // 1. Swings round from the rear and dollies in as the section arrives;
-    //    the light bars switch on as it settles.
-    gsap.timeline({
-      onUpdate: push,
-      scrollTrigger: { trigger: section, start: 'top bottom', end: 'top top', scrub: 0.6 }
-    })
-      .fromTo(proxy, { yaw: -2.3, pitch: 0.2, dist: 13 }, { yaw: -0.5, pitch: 0.1, dist: 8.4, ease: 'power2.out', duration: 1 }, 0)
-      .fromTo(proxy, { lights: 0.12 }, { lights: 1, ease: 'steps(3)', duration: 0.08 }, 0.86);
-
-    // 2. Pinned: turns side-on, comes apart, each part is called out, then
-    //    it all goes back together.
-    var HL_START = 2.3, HL_STEP = 0.3;
-    var HL_END = HL_START + parts.length * HL_STEP;
-    var back = HL_END + 0.25;
+    // 2. Pinned briefly: each coat lands in order, film build adds up.
+    var HOLD = 0.5, STEP = 0.8, DROP = 0.6;
     var tl = gsap.timeline({
-      defaults: { ease: 'power2.inOut', immediateRender: false },
+      defaults: { immediateRender: false },
       scrollTrigger: {
         trigger: pinEl,
         start: 'top top',
-        end: function () { return '+=' + Math.round(window.innerHeight * 3.6); },
+        end: function () { return '+=' + Math.round(window.innerHeight * 1.2); },
         pin: true,
-        scrub: 0.8,
+        scrub: 0.6,
         refreshPriority: 1,
         invalidateOnRefresh: true,
         onToggle: function (self) {
@@ -647,77 +604,58 @@
         }
       }
     });
-    tl.fromTo(proxy, { yaw: -0.5, pitch: 0.1, dist: 8.4 }, { yaw: -1.4, pitch: 0.12, dist: 9.2, duration: 1 }, 0)
-      .fromTo(proxy, { explode: 0 }, { explode: 1, duration: 1.2 }, 1)
-      .fromTo(proxy, { yaw: -1.4, pitch: 0.12, dist: 9.2, lookY: 0.62 }, { yaw: -0.98, pitch: 0.36, dist: 12.6, lookY: 0.48, duration: 1.2 }, 1)
-      .fromTo(proxy, { yaw: -0.98 }, { yaw: -0.5, ease: 'none', duration: HL_END - HL_START }, HL_START)
-      .fromTo(proxy, { explode: 1 }, { explode: 0, ease: 'power3.inOut', duration: 1 }, back)
-      .fromTo(proxy, { yaw: -0.5, pitch: 0.36, dist: 12.6, lookY: 0.48 }, { yaw: -0.5, pitch: 0.1, dist: 8.4, lookY: 0.62, duration: 1 }, back)
-      .to({}, { duration: 0.3 });
-
-    var state = null;
-    function readout(idx, phase) {
-      var key = idx + ':' + phase;
-      if (key === state) return;
-      state = key;
-      items.forEach(function (li, i) { li.classList.toggle('is-active', i === idx); });
-      if (idx >= 0) {
-        numEl.textContent = String(idx + 1).padStart(2, '0') + ' / ' + total;
-        nameEl.textContent = parts[idx].name;
-        detailEl.textContent = parts[idx].detail;
-      } else if (phase === 'apart') {
-        numEl.textContent = '-- / ' + total;
-        nameEl.textContent = 'Disassembly';
-        detailEl.textContent = 'Every panel, mount and fastener';
-      } else if (phase === 'done') {
-        numEl.textContent = total + ' / ' + total;
-        nameEl.textContent = 'Reassembled';
-        detailEl.textContent = 'Back to factory specifications';
-      } else {
-        numEl.textContent = '00 / ' + total;
-        nameEl.textContent = 'Assembled';
-        detailEl.textContent = 'Every part, inside and out';
-      }
-    }
-
-    tl.eventCallback('onUpdate', function () {
-      var t = tl.time();
-      var idx = t >= HL_START && t < HL_END ? Math.floor((t - HL_START) / HL_STEP) : -1;
-      var phase = t < 1.05 ? 'start' : t < HL_START ? 'apart' : t < back ? 'parts' : 'done';
-      readout(idx, phase);
-      proxy.focus = idx >= 0 ? parts[idx].id : null;
-      var p = tl.progress();
-      bar.style.transform = 'scaleX(' + p.toFixed(4) + ')';
-      pct.textContent = String(Math.round(p * 100)).padStart(3, '0');
-      push();
+    tl.to({}, { duration: HOLD }, 0);
+    layers.slice(1).forEach(function (L, i) {
+      tl.fromTo(L.el,
+        { z: function () { return w() * ZX[L.id]; } },
+        { z: function () { return w() * ZA[L.id]; }, ease: 'power3.in', duration: DROP }, HOLD + i * STEP);
     });
+    var DONE = HOLD + (layers.length - 2) * STEP + DROP;
+    tl.to({}, { duration: 0.5 }, DONE);
 
-    // Look around: mouse position on desktop, horizontal drag on touch.
-    var tilt = { x: 0, y: 0 };
-    var tiltTo = function (x, y) {
-      gsap.to(tilt, {
-        x: x, y: y, duration: 0.9, ease: 'power3.out', overwrite: true,
-        onUpdate: function () { pushCar({ tiltX: tilt.x, tiltY: tilt.y }); }
+    var film = { v: 0 };
+    var filmTarget = -1;
+    var state = null;
+    function render(t, started) {
+      var landed = layers.map(function (L, i) {
+        if (!started) return false;
+        return i === 0 || t >= HOLD + (i - 1) * STEP + DROP * 0.95;
       });
-    };
-    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-      stage.addEventListener('pointermove', function (e) {
-        var r = stage.getBoundingClientRect();
-        tiltTo(((e.clientX - r.left) / r.width - 0.5) * 2, ((e.clientY - r.top) / r.height - 0.5) * 2);
-      });
-      stage.addEventListener('pointerleave', function () { tiltTo(0, 0); });
-    } else {
-      var startX = null;
-      var base = 0;
-      stage.addEventListener('pointerdown', function (e) { startX = e.clientX; base = tilt.x; });
-      stage.addEventListener('pointermove', function (e) {
-        if (startX === null) return;
-        tiltTo(Math.max(-2, Math.min(2, base + (e.clientX - startX) / 120)), 0);
-      });
-      ['pointerup', 'pointercancel'].forEach(function (ev) {
-        stage.addEventListener(ev, function () { startX = null; tiltTo(0, 0); });
-      });
+      var done = started && t >= DONE;
+      var idx = !started ? -1 : done ? -1 : t < HOLD ? 0 : Math.min(layers.length - 1, 1 + Math.floor((t - HOLD) / STEP));
+      var key = idx + ':' + landed.join('') + ':' + done;
+      if (key !== state) {
+        state = key;
+        layers.forEach(function (L, i) {
+          L.el.classList.toggle('is-active', i === idx);
+          L.el.classList.toggle('is-landed', landed[i]);
+        });
+        items.forEach(function (li, i) { li.classList.toggle('is-active', i === idx); });
+        if (idx >= 0) {
+          numEl.textContent = String(idx + 1).padStart(2, '0') + ' / ' + total;
+          nameEl.textContent = layers[idx].name;
+          detailEl.textContent = layers[idx].detail;
+        } else if (done) {
+          numEl.textContent = total + ' / ' + total;
+          nameEl.textContent = 'Factory finish';
+          detailEl.textContent = 'About as thick as a sheet of paper';
+        } else {
+          numEl.textContent = '00 / ' + total;
+          nameEl.textContent = 'Five layers';
+          detailEl.textContent = 'From bare metal to clear coat';
+        }
+        var target = layers.reduce(function (n, L, i) { return n + (landed[i] ? L.um : 0); }, 0);
+        if (target !== filmTarget) {
+          filmTarget = target;
+          gsap.to(film, {
+            v: target, duration: 0.6, ease: 'power2.out', overwrite: true,
+            onUpdate: function () { filmEl.textContent = String(Math.round(film.v)).padStart(3, '0'); }
+          });
+        }
+      }
+      bar.style.transform = 'scaleX(' + tl.progress().toFixed(4) + ')';
     }
+    tl.eventCallback('onUpdate', function () { render(tl.time(), tl.progress() > 0); });
   }
 
   /* ---------- Dashboard gauges: ignition sweep, then settle on the value ---------- */

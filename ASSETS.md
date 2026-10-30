@@ -1,88 +1,60 @@
-# Image brief
+# Image prompts
 
-The 3D car section, gauges, badges and "How it works" route are all drawn in code, so they need no images.
+Nine photo spots on the site still show dark **IMAGE PENDING** placeholders. Everything else (the paint-layer stack, gauges, badges, the "How it works" route) is drawn in code and needs no images.
 
-The rest of the site currently shows dark placeholders marked **IMAGE PENDING**. Each one maps to a file below. Generate the images, then drop them into `assets/img/src/` with the exact file name (or send them over), and run `npm run images`.
+## How to make them
 
-## The goal: real photo shoot, not CGI
+1. Paste one prompt below into your image tool (ChatGPT, Midjourney, Gemini, etc.). Each prompt already includes the shared style, so you can copy it as-is.
+2. Pick the shape it lists. If your tool only offers portrait, landscape or square, choose **portrait** for the portrait spots and **landscape** for the rest. The site crops to the exact shape automatically.
+3. Generate 4 or more options and keep the most believable one. Check wheels, door handles, mirrors and reflections, and reject anything with text, badges or warped panels.
+4. Save it with the file name shown (for example `hero.png`). Any of .jpg, .png or .webp is fine, at the largest size your tool offers.
 
-Every image should look like it came from one professional shoot in a dark, clean body shop. The things that give AI images away are perfect plastic reflections, garbled badges and text, extra or melted details (wheels, mirrors, door handles, fingers), and oversaturated HDR color. A few rules:
+## How to get them onto the site
 
-- **Generate 4–8 variations per slot** and pick the one with believable reflections, panel gaps, wheels and mirrors.
-- **No text, logos, badges or license plates** anywhere. Generators garble them, and it keeps us clear of trademarks.
-- **Avoid faces.** Only include hands or people if they look flawless.
-- **Keep the grading consistent:** deep blacks, cool-neutral light, and a touch of film grain across the whole set.
-- **Don't generate "before/after" shots or pictures presented as "our shop" or "our work".** These images set the mood. Using them as proof of real repairs would mislead customers.
+- **Easiest:** on GitHub, open the repository, go to the `assets/img/src` folder, then choose **Add file → Upload files**. Drag the images in and click **Commit changes**. Then tell me and I'll build them into the site.
+- **Or** attach them in our chat. If they don't come through as files, use GitHub instead.
 
-### Style line (add to the end of every prompt)
+(If you're doing it yourself: `npm run images`, then commit `assets/img/`.)
 
-> Editorial automotive photograph, full-frame camera, 50mm lens, natural color, low-key lighting from long overhead LED light bars, deep blacks, soft light falloff, realistic reflections, subtle film grain, slight real-world imperfections. Moody, restrained, premium. No text, no logos, no badges, no license plates, no watermark.
+## The prompts
 
-### Negative prompt (if your tool supports one)
+### 1. `hero`: landscape (main image at the top of the page)
 
-> CGI, 3D render, illustration, cartoon, HDR, oversaturated, neon, lens flare, plastic, text, logo, badge, watermark, license plate, extra wheels, warped body panels, deformed hands
+> A silver Tesla Model Y parked inside a dark, spotless automotive paint booth, three-quarter front view from a low angle. The car sits in the center of the frame with plenty of empty dark space around it. Long horizontal ceiling light bars reflect as clean white lines across the hood and doors. The floor is faintly reflective and the rest of the booth fades to black. Photorealistic editorial automotive photograph, full-frame camera, 50mm lens, moody low-key lighting, deep blacks, cool neutral color, realistic reflections, subtle film grain. No text, no logos, no badges, no license plates, no watermark.
 
-## Slots
+### 2. `hero-mobile`: portrait (optional; otherwise it's cut from `hero`)
 
-| # | File name | Min. size | Shape | Where it appears |
-|---|-----------|-----------|-------|------------------|
-| 1 | `hero.jpg` | 3000 × 2000 | 3:2 landscape | Big hero image (desktop/tablet) |
-| 2 | `hero-mobile.jpg` | 1600 × 2000 | 4:5 portrait | Hero image on phones |
-| 3 | `service-collision.jpg` | 1600 × 2000 | 4:5 portrait | Services: Collision Repair |
-| 4 | `service-paint.jpg` | 1600 × 2000 | 4:5 portrait | Services: Auto Paint & Refinishing |
-| 5 | `service-tesla.jpg` | 1600 × 2000 | 4:5 portrait | Services: Tesla Specialist Repair |
-| 6 | `service-dent.jpg` | 1600 × 2000 | 4:5 portrait | Services: Dent & Scratch Removal |
-| 7 | `about.jpg` | 1600 × 2000 | 4:5 portrait | Our Story |
-| 8 | `texture.jpg` | 2560 × 1440 | 16:9 landscape | Full-width band behind "Every car… no exceptions." |
-| 9 | `cta.jpg` | 2560 × 1440 | 16:9 landscape | Full-width band behind "Ready to get your vehicle back to perfect?" |
+> The same silver Tesla Model Y in the same dark paint booth, front three-quarter view, with the car filling the lower half of a vertical frame and dark empty space above it. Photorealistic editorial automotive photograph, full-frame camera, 50mm lens, moody low-key lighting, deep blacks, cool neutral color, realistic reflections, subtle film grain. No text, no logos, no badges, no license plates, no watermark.
 
-### 1. `hero.jpg`: the signature shot
-> A Tesla Model Y in Stealth Grey (or Pearl White) parked in a dark, spotless automotive paint booth. Three-quarter front view from a low angle. The car is centered with generous empty space on all sides. Long horizontal ceiling light bars reflect as clean white lines along the bodywork, the floor is faintly reflective, and the rest of the booth falls off into black.
+### 3. `service-collision`: portrait (Services: Collision Repair)
 
-The site crops this to roughly 16:9 on desktop and opens it to full-screen width as you scroll, so **keep the car in the middle 60% of the frame**.
+> Close-up of the front corner of a dark grey luxury sedan in the middle of a collision repair in a clean, dimly lit body shop. The bumper cover has been removed, showing bare metal brackets and a grey-primed fender. A frame-measuring arm and tools sit softly out of focus behind it. Photorealistic editorial automotive photograph, full-frame camera, 50mm lens, moody low-key lighting, deep blacks, cool neutral color, realistic reflections, subtle film grain. No text, no logos, no badges, no license plates, no watermark, no people.
 
-### 2. `hero-mobile.jpg`
-> The same car and booth, front three-quarter view, filling the lower-middle of a portrait frame with dark empty space above.
+### 4. `service-paint`: portrait (Services: Auto Paint & Refinishing)
 
-Use the same seed or reference image as #1 so the two match.
+> Inside a professional downdraft paint booth, a spray gun rests on a stand in front of a freshly painted, mirror-glossy car door panel. A fine mist of clear coat hangs in the booth light, and the background falls off into darkness. Photorealistic editorial automotive photograph, full-frame camera, 50mm lens, moody low-key lighting, deep blacks, cool neutral color, realistic reflections, subtle film grain. No text, no logos, no badges, no watermark, no people.
 
-### 3. `service-collision.jpg`
-> Close-up of the front corner of a dark grey luxury sedan on a collision-repair frame bench in a dim, clean workshop. The bumper cover is removed, bare metal and grey primer patches show on the fender, a measuring arm is attached, and tools sit softly out of focus behind.
+### 5. `service-tesla`: portrait (Services: Tesla Specialist Repair)
 
-### 4. `service-paint.jpg`
-> Inside a paint booth, a spray gun on a stand in front of a freshly sprayed, mirror-glossy car door panel. Fine clear-coat mist hangs in the booth light against a dark background.
+> Detail of a white Tesla Model 3's front fender and headlight in a clean repair bay lit by soft overhead light panels. Part of the panel is precisely masked off with blue tape and masking paper, ready to be refinished. Photorealistic editorial automotive photograph, full-frame camera, 50mm lens, calm even lighting with deep shadows, cool neutral color, realistic reflections, subtle film grain. No text, no logos, no badges, no license plates, no watermark, no people.
 
-If you want a person instead: *a painter in a white paint suit, hood and full respirator (face fully covered) spraying clear coat, slight motion blur on the mist.* Check the hands carefully.
+### 6. `service-dent`: portrait (Services: Dent & Scratch Removal)
 
-### 5. `service-tesla.jpg`
-> Detail of a Tesla Model 3 front fender and headlight in a clean, bright repair bay. Part of the aluminum panel is masked with blue masking tape and paper for refinishing. Calm, clinical light, and no badges visible.
+> Macro photograph of a glossy black car door. The striped reflection of a paintless-dent-repair light board bends around a small dent in the panel. Very shallow depth of field, dark surroundings. Photorealistic editorial automotive photograph, moody low-key lighting, deep blacks, realistic reflections, subtle film grain. No text, no logos, no badges, no watermark, no people.
 
-### 6. `service-dent.jpg`
-> Macro of a glossy black car door. A striped reflection from a paintless-dent-repair light board reveals a small dent as a ripple in the reflected lines. Shallow depth of field, dark surroundings.
+### 7. `about`: portrait (Our Story)
 
-### 7. `about.jpg`
-> A fan deck of automotive paint color swatches resting on a silver car hood beside a small sprayed test card, under a daylight color-matching lamp, with the workshop softly blurred behind.
+> A fan deck of automotive paint color swatches resting on the hood of a silver car beside a small sprayed test card, under a daylight color-matching lamp. A clean body shop is softly blurred in the background. Photorealistic editorial automotive photograph, full-frame camera, 50mm lens, moody lighting, deep blacks, cool neutral color, realistic reflections, subtle film grain. No text, no logos, no brand names, no watermark, no people.
 
-### 8. `texture.jpg`
-> Extreme macro of deep red metallic automotive paint. Metal flake sparkles under the clear coat, and a single soft highlight rolls across a curved panel. Most of the frame is dark.
+### 8. `texture`: landscape (band behind "Every car that leaves our shop…")
 
-Text sits on top of this image, so keep it dark and calm.
+> Extreme macro of deep red metallic car paint: tiny metal flakes sparkle beneath a glossy clear coat as one soft highlight rolls across a curved panel. Most of the frame is dark. Photorealistic macro photograph, moody low-key lighting, deep blacks, subtle film grain. No text, no logos, no watermark.
 
-### 9. `cta.jpg`
-> Rear three-quarter view of a sleek dark sports coupe (no badges) in a black studio. Taillights glow softly and a thin line of light traces the roofline. The car sits in the right half of the frame, and the left half is empty and dark.
+### 9. `cta`: landscape (band behind "Ready to get your vehicle back to perfect?")
 
-The headline and call button go on the left.
+> Rear three-quarter view of a sleek dark grey sports coupe in a black studio. The taillights glow softly and a thin line of light traces the roofline. The car sits in the right half of the frame, and the left half is empty and dark. Photorealistic editorial automotive photograph, full-frame camera, 50mm lens, moody low-key lighting, deep blacks, cool neutral color, realistic reflections, subtle film grain. No text, no logos, no badges, no license plates, no watermark.
 
-## Optional extras
+## Also useful
 
-- **`hero.mp4`**: a 6–8 second seamless loop of a light bar slowly sweeping across the car in the booth, generated in an AI video tool (1920 × 1080, H.264, no audio, under 8 MB). It would play in the hero, with `hero.jpg` as the fallback.
-- **Logo, high resolution.** The current logo is only 150 × 54 px, so it looks soft on phones and retina screens. Please send the original: SVG, AI, EPS or PDF, or a PNG at least 1500 px wide with a transparent background. **Don't AI-upscale the logo.** It changes the lettering.
-
-## After you add images
-
-```bash
-npm install        # once
-npm run images     # builds AVIF + WebP sizes into assets/img/
-```
-
-Then commit `assets/img/`. If the hero changes, the link-preview image `og-image.jpg` should be regenerated from `og.html`.
+- **Logo, high resolution.** The current logo is only 150 × 54 px, so it looks soft on phones. The original file is ideal: SVG, AI, EPS or PDF, or a PNG at least 1500 px wide with a transparent background. Please don't AI-upscale it, because that changes the lettering.
+- **Keep it honest.** These images set the mood. Don't present them as photos of the shop or of real customer repairs, and don't generate before/after shots.

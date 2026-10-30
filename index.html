@@ -314,43 +314,45 @@
       </div>
     </section>
 
-    <!-- ============ 3D CAR ============ -->
-    <section class="explode" id="parts" aria-labelledby="parts-title">
+    <!-- ============ PAINT LAYERS ============ -->
+    <section class="explode" id="layers" aria-labelledby="layers-title">
       <div class="explode__pin" data-explode>
         <div class="container explode__grid">
           <div class="explode__copy">
-            <p class="eyebrow">Inside the Build</p>
-            <h2 class="explode__title" id="parts-title">Knowledgeable about every part.</h2>
-            <p class="explode__lede">Proprietary panels, EV-specific protocols, factory specifications. We know how your car goes together, and exactly how it comes apart.</p>
+            <p class="eyebrow">Inside the Finish</p>
+            <h2 class="explode__title" id="layers-title">Knowledgeable about every layer.</h2>
+            <p class="explode__lede">A factory finish is a system, not a single coat of paint. We rebuild it layer by layer, so the repair matches the rest of your car.</p>
             <ol class="parts" data-parts>
-            <li data-part-item="fascia-front"><span class="parts__num">01</span><span class="parts__name">Front fascia</span><span class="parts__detail">Bumper cover, brackets and mounts</span></li>
-            <li data-part-item="hood"><span class="parts__num">02</span><span class="parts__name">Hood</span><span class="parts__detail">Panel fit, gaps and alignment</span></li>
-            <li data-part-item="body"><span class="parts__num">03</span><span class="parts__name">Body structure</span><span class="parts__detail">Fenders, quarters and frame, to factory specs</span></li>
-            <li data-part-item="doors"><span class="parts__num">04</span><span class="parts__name">Doors</span><span class="parts__detail">Skins, hinges, glass and seals</span></li>
-            <li data-part-item="roof"><span class="parts__num">05</span><span class="parts__name">Roof &amp; glass</span><span class="parts__detail">Glass roof and windshield</span></li>
-            <li data-part-item="liftgate"><span class="parts__num">06</span><span class="parts__name">Liftgate</span><span class="parts__detail">Rear glass, spoiler and lights</span></li>
-            <li data-part-item="fascia-rear"><span class="parts__num">07</span><span class="parts__name">Rear fascia</span><span class="parts__detail">Rear bumper and reinforcements</span></li>
-            <li data-part-item="wheels"><span class="parts__num">08</span><span class="parts__name">Wheels</span><span class="parts__detail">Wheels and tires</span></li>
-            <li data-part-item="battery"><span class="parts__num">09</span><span class="parts__name">Battery pack</span><span class="parts__detail">EV-specific protocols</span></li>
+              <li data-part-item="metal" data-um="0"><span class="parts__num">01</span><span class="parts__name">Body panel</span><span class="parts__detail">Steel or aluminum, straightened to factory spec</span></li>
+              <li data-part-item="ecoat" data-um="20"><span class="parts__num">02</span><span class="parts__name">E-coat</span><span class="parts__detail">Corrosion protection bonded to the bare metal &middot; 15&ndash;25 &micro;m</span></li>
+              <li data-part-item="primer" data-um="35"><span class="parts__num">03</span><span class="parts__name">Primer surfacer</span><span class="parts__detail">A smooth, sanded foundation &middot; 25&ndash;40 &micro;m</span></li>
+              <li data-part-item="base" data-um="15"><span class="parts__num">04</span><span class="parts__name">Base coat</span><span class="parts__detail">Your color, matched to the rest of the car &middot; 12&ndash;20 &micro;m</span></li>
+              <li data-part-item="clear" data-um="45"><span class="parts__num">05</span><span class="parts__name">Clear coat</span><span class="parts__detail">Gloss, depth and UV protection &middot; 35&ndash;50 &micro;m</span></li>
             </ol>
           </div>
-          <div class="explode__stage" data-stage>
-            <canvas class="explode__canvas" data-car3d role="img" aria-label="3D model of an electric crossover that separates into its body panels, doors, glass roof, wheels and battery pack as you scroll"></canvas>
-            <div class="explode__labels" data-labels aria-hidden="true"></div>
-            <div class="explode__loading" data-car-loading aria-hidden="true"><span></span>Loading 3D model</div>
+          <div class="explode__stage layers-stage" data-stage>
+            <div class="layers-scene" aria-hidden="true">
+              <div class="stack" data-stack>
+                  <div class="slab slab--metal" data-layer="metal"><i class="slab__face slab__face--top"></i><i class="slab__face slab__face--front"></i><i class="slab__face slab__face--side"></i><span class="slab__tag"><b>01</b>Body panel</span></div>
+                  <div class="slab slab--ecoat" data-layer="ecoat"><i class="slab__face slab__face--top"></i><i class="slab__face slab__face--front"></i><i class="slab__face slab__face--side"></i><span class="slab__tag"><b>02</b>E-coat</span></div>
+                  <div class="slab slab--primer" data-layer="primer"><i class="slab__face slab__face--top"></i><i class="slab__face slab__face--front"></i><i class="slab__face slab__face--side"></i><span class="slab__tag"><b>03</b>Primer</span></div>
+                  <div class="slab slab--base" data-layer="base"><i class="slab__face slab__face--top"></i><i class="slab__face slab__face--front"></i><i class="slab__face slab__face--side"></i><span class="slab__tag"><b>04</b>Base coat</span></div>
+                  <div class="slab slab--clear" data-layer="clear"><i class="slab__face slab__face--top"></i><i class="slab__face slab__face--front"></i><i class="slab__face slab__face--side"></i><span class="slab__tag"><b>05</b>Clear coat</span></div>
+              </div>
+            </div>
             <div class="explode__hud" aria-hidden="true">
-              <span>EV crossover &middot; Interactive 3D</span>
-              <span class="explode__pct"><span data-explode-pct>000</span>%</span>
+              <span>Typical factory finish &middot; Cross-section</span>
+              <span class="explode__pct">Film build <span data-film>000</span> <span class="unit">&micro;m</span></span>
             </div>
             <div class="explode__foot">
               <div class="explode__readout" aria-hidden="true">
-                <span class="explode__readout-num" data-readout-num>00 / 09</span>
-                <span class="explode__readout-name" data-readout-name>Assembled</span>
-                <span class="explode__readout-detail" data-readout-detail>Every part, inside and out</span>
+                <span class="explode__readout-num" data-readout-num>00 / 05</span>
+                <span class="explode__readout-name" data-readout-name>Five layers</span>
+                <span class="explode__readout-detail" data-readout-detail>From bare metal to clear coat</span>
                 <span class="explode__bar"><i data-explode-bar></i></span>
               </div>
               <div class="finish">
-                <p class="finish__label">Finish <span data-paint-name>Midnight Silver</span></p>
+                <p class="finish__label">Base coat <span data-paint-name>Midnight Silver</span></p>
                 <div class="finish__swatches" role="group" aria-label="Paint finish">
                   <button type="button" class="swatch" aria-pressed="true" data-name="Midnight Silver" data-type="Metallic" data-paint="#8d939a" style="--c1:#a4aab1;--c2:#5b6168;--c3:#1c1f23" aria-label="Midnight Silver"></button>
                   <button type="button" class="swatch" aria-pressed="false" data-name="Pearl White" data-type="Pearl" data-paint="#e6e4df" style="--c1:#ffffff;--c2:#dedcd6;--c3:#85827c" aria-label="Pearl White"></button>

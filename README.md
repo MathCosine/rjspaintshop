@@ -10,8 +10,6 @@ privacy-policy.html         → /privacy-policy
 accessibility-statement.html→ /accessibility-statement
 assets/css/main.css         all styles (colors and type at the top in :root)
 assets/js/main.js           scroll animations, menu, estimate form, gauges, FAQ
-assets/js/car3d.js          the interactive 3D car (built from src/car3d.js)
-src/car3d.js                3D car source: lofted body, panels, materials, camera
 assets/vendor/              GSAP (+ ScrollTrigger, SplitText, DrawSVG, MotionPath), Lenis
 assets/fonts/               Archivo (variable width) + IBM Plex Mono (self-hosted)
 assets/img/src/             original images, one per slot (see ASSETS.md)
@@ -21,7 +19,7 @@ og.html → og-image.jpg      link-preview image (1200×630)
 vercel.json                 clean URLs, caching and security headers
 ```
 
-Motion runs on [GSAP](https://gsap.com) (free for commercial use) and [Lenis](https://lenis.darkroom.engineering) smooth scrolling. The 3D car is drawn with [three.js](https://threejs.org) and only loads when you scroll near it. Everything respects the visitor's **reduced-motion** setting, and the page stays fully readable if JavaScript fails.
+Motion runs on [GSAP](https://gsap.com) (free for commercial use) and [Lenis](https://lenis.darkroom.engineering) smooth scrolling. The paint-layer stack is pure CSS 3D, with no images or libraries. Everything respects the visitor's **reduced-motion** setting, and the page stays fully readable if JavaScript fails.
 
 All links and asset paths are relative, so the same files work at `https://mathcosine.github.io/rjspaintshop/` and at `https://rjspaintshop.com/`.
 
@@ -34,12 +32,10 @@ npm run dev          # http://localhost:4173
 
 The estimate form needs the Vercel function, so locally it will show the "please call us" fallback message when submitted.
 
-To change the 3D car, edit `src/car3d.js` and run `npm run build:car`.
-
 ## Common edits
 
 - **Text, reviews, hours:** edit `index.html`. Each section is marked with a `<!-- ==== NAME ==== -->` comment. If the hours change, also update the `openingHoursSpecification` block near the top of the file (Google reads it) and `initOpenStatus()` in `assets/js/main.js` (the "Open now" badge).
-- **Images:** see [ASSETS.md](ASSETS.md). Drop a file into `assets/img/src/` using the slot name, run `npm run images`, and commit.
+- **Images:** see [ASSETS.md](ASSETS.md) for prompts. Drop a file into `assets/img/src/` using the slot name (any format or size; it's cropped to fit), run `npm run images`, and commit `assets/img/`.
 - **Colors and fonts:** the `:root` block at the top of `assets/css/main.css`.
 - **After updating GSAP or Lenis:** run `node scripts/vendor.mjs` to copy the new files into `assets/`.
 
