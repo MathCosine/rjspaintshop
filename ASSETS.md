@@ -1,18 +1,18 @@
 # Image prompts
 
-The site needs just **5 images**, and the hero is already done. Everything else (the paint-layer stack, gauges, badges, the red metallic band, the "How it works" route) is drawn in code.
+The site uses just **5 images**, and all of them are in. Everything else (the paint-layer stack, gauges, badges, the red metallic band, the "How it works" route) is drawn in code.
 
 | File | Status | Used for |
 |------|--------|----------|
 | `hero` | ✅ done (your Model Y) | Top of the page, the Tesla service tile, and the closing banner |
-| `service-collision` | needed | Services: Collision Repair |
-| `service-paint` | needed | Services: Auto Paint & Refinishing |
-| `service-dent` | needed | Services: Dent & Scratch Removal |
-| `about` | needed | Our Story |
+| `service-collision` | ✅ done | Services: Collision Repair |
+| `service-paint` | ✅ done | Services: Auto Paint & Refinishing |
+| `service-dent` | ✅ done | Services: Dent & Scratch Removal |
+| `about` | ✅ done | Our Story |
 
-The four that are left are **single objects on a plain black background**, which AI tools do very reliably. Because there's no shop scenery in them, nobody will mistake them for photos of the real shop. The site places each one on its own dark "studio" panel.
+The four product shots are **single objects on a plain black background**, which AI tools do very reliably. Because there's no shop scenery in them, nobody will mistake them for photos of the real shop. The site places each one on its own dark "studio" panel.
 
-## How to make them
+## How to make (or replace) them
 
 1. Paste a prompt into your image tool (ChatGPT, Gemini, Midjourney, etc.) and choose **square**.
 2. If your tool has a **transparent background** option, turn it on. Otherwise the black background in the prompt works just as well.

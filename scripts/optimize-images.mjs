@@ -17,15 +17,17 @@ const OUT = 'assets/img';
 // Keep widths in sync with index.html.
 export const SLOTS = {
   'hero': [null, [960, 1440, 1920, 2560]],
-  'service-tesla': [4 / 5, [640, 960, 1280]],
   'service-collision': [null, [640, 960, 1280]],
   'service-paint': [null, [640, 960, 1280]],
   'service-dent': [null, [640, 960, 1280]],
   'about': [null, [640, 960, 1280]],
 };
 
-// The Tesla service tile is a close crop of the hero car.
-const FALLBACKS = { 'service-tesla': 'hero' };
+const FALLBACKS = {};
+
+// Product shots: trim the empty black (or transparent) border so the object
+// fills its frame.
+const TRIM = new Set(['service-collision', 'service-paint', 'service-dent', 'about']);
 
 const EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 
@@ -46,6 +48,13 @@ for (const [slot, [ratio, widths]] of Object.entries(SLOTS)) {
   if (!input) {
     console.log(`keep  ${slot} (no source in ${SRC})`);
     continue;
+  }
+  if (TRIM.has(slot)) {
+    const hasAlpha = (await sharp(input).metadata()).hasAlpha;
+    let img = sharp(input).rotate().trim({ threshold: 28 });
+    // push a near-black studio backdrop to true black so it blends away
+    if (!hasAlpha) img = img.linear(1.1, -22);
+    input = (await img.png().toBuffer({ resolveWithObject: true })).data;
   }
   const meta = await sharp(input).rotate().metadata();
   const srcW = meta.autoOrient?.width ?? meta.width;
