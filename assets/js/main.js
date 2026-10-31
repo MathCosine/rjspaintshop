@@ -41,7 +41,7 @@
     whenFontsReady(function () {
       initHeroIntro();
       initHeroScroll();
-      initServices();
+      initServiceFan();
       initLayers();
       initTicker();
       initReveals();
@@ -62,9 +62,9 @@
     if (hasGsap && isHome) {
       gsap.registerPlugin(ScrollTrigger);
       initNavSpy();
-      initServicesStatic();
     }
     if (isHome) {
+      initServiceFan();
       initGauges();
       $$('.step').forEach(function (el) { el.classList.add('is-lit'); });
     }
@@ -296,85 +296,59 @@
     });
   }
 
-  /* ---------- Services: sticky frame swaps as each service takes focus ---------- */
-  function initServices() {
-    var mm = gsap.matchMedia();
-    mm.add('(min-width: 1024px)', function () {
-      var section = $('.services');
-      var items = $$('[data-service]');
-      var imgs = $$('[data-service-img]');
-      var counter = $('[data-service-current]');
-      var current = 0;
+  /* ---------- Services: four cards dealt out into a fanned arc ---------- */
+  function initServiceFan() {
+    var fan = $('[data-svc]');
+    if (!fan) return;
+    var items = $$('.svc__item', fan);
 
-      section.classList.add('has-services-js');
-      items[0].classList.add('is-active');
-
-      function setActive(i) {
-        if (i === current) return;
-        var down = i > current;
-        var prev = imgs[current];
-        var next = imgs[i];
-        imgs.forEach(function (el) { el.style.zIndex = '0'; });
-        prev.style.zIndex = '1';
-        next.style.zIndex = '2';
-        gsap.killTweensOf([next, $('img', next)]);
-        gsap.fromTo(next,
-          { clipPath: down ? 'inset(100% 0% 0% 0%)' : 'inset(0% 0% 100% 0%)' },
-          { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'expo.inOut' });
-        gsap.fromTo($('img', next), { scale: 1.18 }, { scale: 1, duration: 1.8, ease: 'expo.out' });
-        items[current].classList.remove('is-active');
-        items[i].classList.add('is-active');
-        if (counter) counter.textContent = String(i + 1).padStart(2, '0');
-        current = i;
-      }
-
-      items.forEach(function (item, i) {
-        ScrollTrigger.create({
-          trigger: item,
-          start: 'top center',
-          end: 'bottom center',
-          onToggle: function (self) { if (self.isActive) setActive(i); }
-        });
-      });
-
-      return function () {
-        section.classList.remove('has-services-js');
-        items.forEach(function (el) { el.classList.remove('is-active'); });
-      };
+    // Hover, focus or tap a card to lift it and light up its description.
+    var setActive = function (idx) {
+      items.forEach(function (el, i) { el.classList.toggle('is-active', i === idx); });
+      fan.classList.toggle('has-active', idx >= 0);
+    };
+    items.forEach(function (item, i) {
+      item.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') setActive(i); });
+      item.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') setActive(-1); });
+      item.addEventListener('click', function () { setActive(item.classList.contains('is-active') ? -1 : i); });
+    });
+    document.addEventListener('pointerdown', function (e) {
+      if (!fan.contains(e.target)) setActive(-1);
     });
 
-    // Mobile: each inline image wipes in as it arrives.
-    mm.add('(max-width: 1023px)', function () {
-      $$('.service__thumb').forEach(function (fig) {
-        gsap.fromTo(fig, { clipPath: 'inset(0% 0% 100% 0%)' }, {
-          clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'expo.inOut',
-          scrollTrigger: { trigger: fig, start: 'top 88%', once: true }
-        });
-        gsap.fromTo($('img', fig), { scale: 1.25 }, {
-          scale: 1, duration: 1.8, ease: 'expo.out',
-          scrollTrigger: { trigger: fig, start: 'top 88%', once: true }
-        });
-      });
-    });
-  }
-
-  // Reduced motion: still swap the sticky image, just without animation.
-  function initServicesStatic() {
+    if (!animated) return;
+    var cards = items.map(function (el) { return $('.svc__card', el); });
+    var texts = items.map(function (el) { return $('.svc__text', el); });
     var mm = gsap.matchMedia();
-    mm.add('(min-width: 1024px)', function () {
-      var items = $$('[data-service]');
-      var imgs = $$('[data-service-img]');
-      var counter = $('[data-service-current]');
-      $('.services').classList.add('has-services-js');
+
+    // Desktop: the cards start as a stacked deck in the middle and fan out.
+    mm.add('(min-width: 900px)', function () {
+      var mid = function () { var r = fan.getBoundingClientRect(); return r.left + r.width / 2; };
+      var tl = gsap.timeline({ scrollTrigger: { trigger: fan, start: 'top 80%', once: true } });
+      tl.from(cards, {
+        x: function (i, el) { var r = el.getBoundingClientRect(); return mid() - (r.left + r.width / 2); },
+        y: function (i) { return [-34, -2, -4, -36][i] + 30; },
+        rotation: function (i) { return [9, 3.5, -1, -5.5][i]; },
+        scale: 0.9,
+        duration: 1.35,
+        ease: 'expo.out',
+        stagger: { each: 0.06, from: 'center' }
+      }, 0)
+        .from(texts, { autoAlpha: 0, y: 26, duration: 1, ease: 'expo.out', stagger: 0.07 }, 0.45);
+    });
+
+    // Phones and tablets: cards rise in pairs.
+    mm.add('(max-width: 899px)', function () {
       items.forEach(function (item, i) {
-        ScrollTrigger.create({
-          trigger: item, start: 'top center', end: 'bottom center',
-          onToggle: function (self) {
-            if (!self.isActive) return;
-            items.forEach(function (el, j) { el.classList.toggle('is-active', j === i); });
-            imgs.forEach(function (el, j) { el.classList.toggle('is-active', j === i); });
-            if (counter) counter.textContent = String(i + 1).padStart(2, '0');
-          }
+        gsap.from([cards[i], texts[i]], {
+          y: 48,
+          autoAlpha: 0,
+          rotation: i % 2 ? 4 : -4,
+          duration: 1.1,
+          ease: 'expo.out',
+          stagger: 0.12,
+          delay: (i % 2) * 0.1,
+          scrollTrigger: { trigger: item, start: 'top 88%', once: true }
         });
       });
     });

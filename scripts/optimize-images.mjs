@@ -55,6 +55,20 @@ for (const [slot, [ratio, widths]] of Object.entries(SLOTS)) {
     // push a near-black studio backdrop to true black so it blends away
     if (!hasAlpha) img = img.linear(1.1, -22);
     input = (await img.png().toBuffer({ resolveWithObject: true })).data;
+    // feather the edges into black, so mist or floor reflections that run off
+    // the photo never end in a hard line
+    if (!hasAlpha) {
+      const { width: fw, height: fh } = await sharp(input).metadata();
+      const fx = Math.round(fw * 0.1);
+      const fy = Math.round(fh * 0.1);
+      const edge = (id, x1, y1, x2, y2) =>
+        `<linearGradient id="${id}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"><stop offset="0" stop-color="#000"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${fw}" height="${fh}"><defs>
+        ${edge('l', 0, 0, 1, 0)}${edge('r', 1, 0, 0, 0)}${edge('t', 0, 0, 0, 1)}${edge('b', 0, 1, 0, 0)}</defs>
+        <rect width="${fx}" height="${fh}" fill="url(#l)"/><rect x="${fw - fx}" width="${fx}" height="${fh}" fill="url(#r)"/>
+        <rect width="${fw}" height="${fy}" fill="url(#t)"/><rect y="${fh - fy}" width="${fw}" height="${fy}" fill="url(#b)"/></svg>`;
+      input = await sharp(input).composite([{ input: Buffer.from(svg) }]).png().toBuffer();
+    }
   }
   const meta = await sharp(input).rotate().metadata();
   const srcW = meta.autoOrient?.width ?? meta.width;
